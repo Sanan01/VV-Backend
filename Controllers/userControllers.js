@@ -184,5 +184,5 @@ const authVoter = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = {allUsers , registerUser};
+module.exports = {allUsers , registerUser , authVoter};
   
