@@ -1,23 +1,46 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+const VERIFIED_STR = "Not Verified";
+
 const adminSchema = mongoose.Schema(
   {
-    name: { type: "String", required: true },
-    email: { type: "String", unique: true, required: true },
-    cnic : { type: "number" , unique:true , required:true},
-    password: { type: "String", required: true },
+    name: { 
+      type: String, 
+      required: true 
+    },
+    email: { 
+      type: String, 
+      unique: true, 
+      required: true 
+    },
+    cnic : { 
+      type: Number , 
+      unique:true , 
+      required:true
+    },
+    password: { 
+      type: String, 
+      required: true
+    },
     verifyToken:{
-      type: "String",
+      type: String,
     },
     adminStatus : {
-      type:"String",
-      default : "Not Verified"
+      type: String,
+      default : VERIFIED_STR
+    },
+    isActive : {
+      type: Boolean,
+      default: false
+    },
+    isSuperAdmin : {
+      type: Boolean,
+      default : false
     },
     pic: {
-      type: "String",
-      default:
-        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+      type: String,
+      default: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
   },
   { timestamps: true }

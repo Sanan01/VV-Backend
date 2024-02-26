@@ -1,16 +1,6 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
   email: { 
     type: String,
     unique: true, 
@@ -21,27 +11,18 @@ const userSchema = new mongoose.Schema({
     unique:true ,
     required:true
   },
-  age: {
-    type: Number,
-    required: true,
-  },
-  address: {
+  region :{
     type: String,
-    required: true,
-    trim: true,
+    required: true
   },
-  voted: {
-    type: Boolean,
-    default: false,
+  city :{
+    type: String,
+    required: true
   },
-  votedParty: {
+  registeredElections: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Party',
-  },
-  votedCandidate: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Candidate',
-  },
+    ref: 'Election',
+  }],
   registrationDate: {
     type: Date,
     default: Date.now,
@@ -51,9 +32,12 @@ const userSchema = new mongoose.Schema({
     default:
       "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
   },
-  handImage :{
+  HandImage :{
     type : String,
     default : "",
+  },
+  userToken :{
+    type : Number
   }
 });
 

@@ -173,6 +173,7 @@ const authAdmin = asyncHandler(async (req, res) => {
           pic: admin.pic,
           adminStatus: admin.adminStatus,
           token: token,
+          isSuperAdmin : admin.isSuperAdmin,
       });
     }
    
@@ -417,5 +418,72 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = {authAdmin , registerAdmin , allAdmins , getAdmin ,verifyAccount , resetPassword , forgotPassword};
+const revertAccess = asyncHandler(async (req, res) => {
+  console.log("Revert Access API Hit");
+
+  const { adminId } = req.body;
+  console.log(adminId)
+
+  try {
+    const admin = await Admin.findOne({ _id: adminId });
+    console.log(admin);
+
+    if (!admin) {
+      return res.status(400).json({
+        success: false,
+        message: "User with the provided ID not found",
+      });
+    }
+
+    admin.adminStatus = admin.adminStatus === 'verified' ? 'Not verified' : 'verified';
+    
+    await admin.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Acess Revert Successfull",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
+const makeSuperAdmin = asyncHandler(async (req, res) => {
+  console.log("Convert Super Admin API Hit");
+
+  const { adminId } = req.body;
+  console.log(adminId)
+
+  try {
+    const admin = await Admin.findOne({ _id: adminId });
+    console.log(admin);
+
+    if (!admin) {
+      return res.status(400).json({
+        success: false,
+        message: "User with the provided ID not found",
+      });
+    }
+
+    admin.isSuperAdmin = !admin.isSuperAdmin 
+    
+    await admin.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Super Admin Added Successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
+
+module.exports = {authAdmin , registerAdmin , allAdmins , getAdmin ,verifyAccount , resetPassword , forgotPassword , revertAccess , makeSuperAdmin};
 
