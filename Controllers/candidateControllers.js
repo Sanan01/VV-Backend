@@ -6,15 +6,15 @@ dotenv.config();
 
 const registerCandidate = asyncHandler(async (req, res) => {
   console.log("Candidate Register API");
-  const { name, cnic, image, party, experience, position, electionManifesto, registrationDate } = req.body;
+  const { name, cnic, image, party, experience, position, electionManifesto, registrationDate , province, city } = req.body;
 
-  console.log("Data in Register >>" ,  name, cnic, image, party, experience, position, electionManifesto, registrationDate )
+  console.log("Data in Register >>" ,  name, cnic, image, party, experience, position, electionManifesto, registrationDate , province, city )
   let tempExp = experience
   if(tempExp === 0){
     tempExp = 1; 
   }
   
-  if (!name || !image || !party || !cnic || !tempExp || !position || !electionManifesto || !registrationDate) {
+  if (!name || !image || !party || !cnic || !tempExp || !position || !electionManifesto || !registrationDate ||!province || !city) {
       res.status(400);
       throw new Error("Please Fill up all the fields!");
   }
@@ -28,7 +28,7 @@ const registerCandidate = asyncHandler(async (req, res) => {
   }
 
   const candidate = await Candidate.create({
-    name, cnic, image, party, experience, position, electionManifesto, registrationDate
+    name, cnic, image, party, experience, position, electionManifesto, registrationDate , province, city
   });
 
   console.log("Candidate in Register >> ", candidate);
@@ -42,6 +42,8 @@ const registerCandidate = asyncHandler(async (req, res) => {
           party: candidate.party,
           experience: candidate.tempExp,
           position: candidate.position,
+          province: candidate.province,
+          city: candidate.city,
           electionManifesto: candidate.electionManifesto,
           registrationDate: candidate.registrationDate,
       });

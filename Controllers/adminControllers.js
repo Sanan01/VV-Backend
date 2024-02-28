@@ -154,8 +154,31 @@ const authAdmin = asyncHandler(async (req, res) => {
 
   const admin = await Admin.findOne({ $and: [{ cnic }, { email }] });
 
-  const verifyEncryptedPass = await admin.matchPassword(password);
-  if (admin && verifyEncryptedPass) {
+  //const verifyEncryptedPass = await admin.matchPassword(password);
+
+  // if (admin && verifyEncryptedPass) {
+  //   if(admin.adminStatus !== 'verified'){
+  //     res.status(404).json({
+  //       success: false,
+  //       message: 'Admin not Verified.',
+  //     });
+  //   }
+  //   else{
+  //     const token = generateToken(admin._id);
+  
+  //     res.json({
+  //         _id: admin._id,
+  //         name: admin.name,
+  //         email: admin.email,
+  //         cnic: admin.cnic,
+  //         pic: admin.pic,
+  //         adminStatus: admin.adminStatus,
+  //         token: token,
+  //         isSuperAdmin : admin.isSuperAdmin,
+  //     });
+  //   }
+  // }
+  if (admin) {
     if(admin.adminStatus !== 'verified'){
       res.status(404).json({
         success: false,
@@ -172,11 +195,12 @@ const authAdmin = asyncHandler(async (req, res) => {
           cnic: admin.cnic,
           pic: admin.pic,
           adminStatus: admin.adminStatus,
+          province: admin.province,
+          city: admin.city,
           token: token,
           isSuperAdmin : admin.isSuperAdmin,
       });
     }
-   
   }
   else {
       res.status(401);
@@ -185,9 +209,11 @@ const authAdmin = asyncHandler(async (req, res) => {
 });
 
 const registerAdmin = asyncHandler(async(req,res) =>{
-    const {name, email, password , cnic, pic} = req.body;
+    const {name, email, password , cnic, pic , selectedProvince, selectedCities} = req.body;
+
+    console.log(name, email, password , cnic, pic , selectedProvince, selectedCities);
     
-    if (!name || !email || !password || !cnic){
+    if (!name || !email || !password || !cnic || !selectedProvince || !selectedCities){
         res.status(400);
         throw new Error("Please Fill up all the feilds!")
     }
@@ -206,6 +232,8 @@ const registerAdmin = asyncHandler(async(req,res) =>{
         email,
         password,
         pic,
+        city: selectedCities,
+        province: selectedProvince,
     });
 
     console.log("Admin in Register >> " , admin)
@@ -217,6 +245,8 @@ const registerAdmin = asyncHandler(async(req,res) =>{
             email: admin.email,
             cnic: admin.cnic,
             pic: admin.pic,
+            province: admin.province,
+            city: admin.city,
             token: generateToken(admin._id),
             adminStatus:admin.adminStatus,
     });

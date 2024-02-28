@@ -26,6 +26,13 @@ const adminSchema = mongoose.Schema(
     verifyToken:{
       type: String,
     },
+    province: { 
+      type: String, 
+      required: true
+    },
+    city:{
+      type: String,
+    },
     adminStatus : {
       type: String,
       default : VERIFIED_STR
