@@ -154,31 +154,9 @@ const authAdmin = asyncHandler(async (req, res) => {
 
   const admin = await Admin.findOne({ $and: [{ cnic }, { email }] });
 
-  //const verifyEncryptedPass = await admin.matchPassword(password);
+  const verifyEncryptedPass = await admin.matchPassword(password);
 
-  // if (admin && verifyEncryptedPass) {
-  //   if(admin.adminStatus !== 'verified'){
-  //     res.status(404).json({
-  //       success: false,
-  //       message: 'Admin not Verified.',
-  //     });
-  //   }
-  //   else{
-  //     const token = generateToken(admin._id);
-  
-  //     res.json({
-  //         _id: admin._id,
-  //         name: admin.name,
-  //         email: admin.email,
-  //         cnic: admin.cnic,
-  //         pic: admin.pic,
-  //         adminStatus: admin.adminStatus,
-  //         token: token,
-  //         isSuperAdmin : admin.isSuperAdmin,
-  //     });
-  //   }
-  // }
-  if (admin) {
+  if (admin && verifyEncryptedPass) {
     if(admin.adminStatus !== 'verified'){
       res.status(404).json({
         success: false,
@@ -195,8 +173,6 @@ const authAdmin = asyncHandler(async (req, res) => {
           cnic: admin.cnic,
           pic: admin.pic,
           adminStatus: admin.adminStatus,
-          province: admin.province,
-          city: admin.city,
           token: token,
           isSuperAdmin : admin.isSuperAdmin,
       });
