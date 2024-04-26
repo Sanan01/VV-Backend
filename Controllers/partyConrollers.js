@@ -26,7 +26,7 @@ const registerParty = asyncHandler(async(req,res) =>{
       throw new Error("Please Fill up all the feilds!")
   }
 
-  const PartyExists = await Party.findOne({ $or: [{ leader }, { name }] });
+  const PartyExists = await Party.findOne({ $or: [{ leader }, { name } , {abbreviation}] });
   
 
   if (PartyExists) {

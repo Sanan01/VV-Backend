@@ -51,6 +51,57 @@ const registerElection = asyncHandler(async(req,res) =>{
     }
 });
 
+
+// const registerElection = asyncHandler(async(req,res) =>{
+//     console.log("Election Register API");
+//     //creation Date and isActive by default jayega
+//     const {name, startDate , endDate , parties , candidates , results } = req.body;
+//     console.log("Data in Register Election >> " , name, startDate , endDate , parties , candidates , results  );
+
+//     if(!name || !startDate || !endDate || !parties || !candidates){
+//         res.status(400);
+//         throw new Error("Please Fill up all the feilds!");
+//     }
+
+//     const electionExist = await Election.findOne({ name });
+
+//     if(electionExist){
+//         res.status(400);
+//         throw new Error("Election with this Data Already Exists!");
+//     }
+
+//     const election = await Election.create({
+//         name, 
+//         startDate, 
+//         endDate, 
+//         parties, 
+//         candidates, 
+//         isActive:false , 
+//         results,
+//         creationDate: Date.now() 
+//     });
+
+//     console.log("Election Created >>" , election);
+
+//     if(election){
+//         res.status(201).json({
+//             _id: election._id,
+//             name: election.name,
+//             startDate: election.startDate,
+//             endDate: election.endDate,
+//             parties: election.parties,
+//             candidates: election.candidates,
+//             isActive: election.isActive,
+//             creationDate: election.creationDate,   
+//             results: election.results,  
+//     });
+//     }else{
+//         res.status(400);
+//         throw new Error("Election not Created!");
+//     }
+// });
+
+
 const allElections = asyncHandler(async (req, res) => {
     console.log("Elections all API");
     try {

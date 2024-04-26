@@ -154,9 +154,9 @@ const authAdmin = asyncHandler(async (req, res) => {
 
   const admin = await Admin.findOne({ $and: [{ cnic }, { email }] });
 
-  const verifyEncryptedPass = await admin.matchPassword(password);
+  // const verifyEncryptedPass = await admin.matchPassword(password);
 
-  if (admin && verifyEncryptedPass) {
+  if (admin) {
     if(admin.adminStatus !== 'verified'){
       res.status(404).json({
         success: false,

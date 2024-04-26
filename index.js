@@ -10,6 +10,7 @@ const partyRoutes = require('./Routes/partyRoutes');
 const citizenRoutes = require('./Routes/citizenRoutes');
 const candidateRoutes = require('./Routes/candidateRoutes');
 const electionRoutes = require('./Routes/electionRoutes');
+const votesRoutes = require('./Routes/votesRoutes');
 
 const {notFound,errorHandler} = require('./Middleware/errorMiddleware')
 
@@ -32,7 +33,7 @@ app.use('/api/party',partyRoutes);
 app.use('/api/citizen',citizenRoutes);
 app.use('/api/candidate',candidateRoutes);
 app.use('/api/election',electionRoutes);
-
+app.use('/api/votes',votesRoutes);
 
 
 // Error Handling middlewares
