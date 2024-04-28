@@ -66,10 +66,9 @@ const getAllVotesByParty = asyncHandler(async (req, res) => {
         }
 
         const partyVotes = election.results.filter(result => result.party.toString() === partyId);
-        const countPartyVotes = partyVotes.reduce((acc, result) => acc + result.votes, 0);
-        console.log(countPartyVotes)
+        //const countPartyVotes = partyVotes.reduce((acc, result) => acc + result.votes, 0);
         
-        return res.status(200).json({ votes: countPartyVotes });
+        return res.status(200).json({ votes: partyVotes });
 
     } catch (error) {
         console.error(error);
@@ -90,9 +89,9 @@ const getAllVotesByCandidate = asyncHandler(async (req, res) => {
 
         const candidateVotes = election.results.filter(result => result.candidate.toString() === candidateId && result.party.toString() === partyId);
 
-        const votesByCandidate = candidateVotes.reduce((acc, result) => acc + result.votes, 0);
+        //const votesByCandidate = candidateVotes.reduce((acc, result) => acc + result.votes, 0);
 
-        return res.status(200).json({ votes: votesByCandidate });
+        return res.status(200).json({ votes: candidateVotes });
 
     } catch (error) {
         console.error(error);
@@ -101,8 +100,10 @@ const getAllVotesByCandidate = asyncHandler(async (req, res) => {
 });
 
 const calculateVotesByParty = asyncHandler(async (req, res) => {
+    const { electionId } = req.params;
+    console.log(electionId)
     try {
-        const { electionId } = req.body;
+        
 
         const election = await Election.findOne({ _id: electionId }).populate('parties.party');
 

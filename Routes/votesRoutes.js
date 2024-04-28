@@ -10,5 +10,6 @@ const router = express.Router();
 router.put("/addVoteForParty" , addVoteForElection);
 router.get("/getAllVotesByParty" , getAllVotesByParty);
 router.get("/getAllVotesByCandidate" , getAllVotesByCandidate);
-router.get("/calculateVotesByParty" , calculateVotesByParty);
+router.get("/calculateVotesByParty/:electionId" , calculateVotesByParty);
+
 module.exports = router;
