@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Users = require("../Models/userModel");
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
+const Citizen = require("../Models/CitizenModel");
 
 dotenv.config();
 
@@ -88,18 +89,18 @@ const allUsers = asyncHandler(async (req, res) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   console.log("User Register API");
-  const { email, cnic, region, city, registeredElection, pic, HandImage } = req.body;
+  const { name, password, email, cnic, region, city, registeredElections, pic, HandImage, dob } = req.body;
   
-  if (!cnic || !email || !region || !city || !registeredElection || !HandImage){
+  if (!name || !password || !email || !cnic || !region || !city || !registeredElections || !HandImage || !dob) {
     res.status(400);
-    throw new Error("Please Fill up all the feilds!")
+    throw new Error("Please fill up all the fields!");
   }
 
-  const voterExist = await Users.findOne({ $and: [{ cnic }, { registeredElection }] });
+  const voterExist = await Users.findOne({ cnic, 'registeredElections.election': { $in: registeredElections.election } });
 
   if (voterExist) {
     res.status(400);
-    throw new Error("Voter with this Cnic already Registered for this Election!");
+    throw new Error("Voter with this CNIC already registered for this election!");
   }
 
   const voter = await Users.create({
@@ -107,65 +108,73 @@ const registerUser = asyncHandler(async (req, res) => {
     cnic,
     region,
     city,
-    registeredElection,
+    registeredElections,
     pic,
-    HandImage
+    HandImage,
+    name,
+    password,
+    dob,
+    userToken:generateToken()
   });
 
-  if(voter){
+  if (voter) {
     res.status(201).json({
       _id: voter._id,
       cnic: voter.cnic,
       email: voter.email,
+      name: voter.name,
+      password: voter.password,
       region: voter.region,
       city: voter.city,
-      registeredElection: voter.registeredElection,
+      registeredElections: voter.registeredElections,
       pic: voter.pic,
       HandImage: voter.HandImage,
-      userToken: generateToken(),
+      status: voter.status,
+      dob: voter.dob,
+      userToken: voter.userToken
     });
 
+    // Code for sending verification email
     const transporter = nodemailer.createTransport({
-      service:"gmail",
-        auth: {
-          user: process.env.HOST_MAIL,
-          pass: process.env.HOST_PASSWORD,
-        },
-      });
+      service: "gmail",
+      auth: {
+        user: process.env.HOST_MAIL,
+        pass: process.env.HOST_PASSWORD,
+      },
+    });
 
-      const sendOTP_MAIL = sendOtpMailFunc(voter);
+    const sendOTP_MAIL = sendOtpMailFunc(voter);
 
-      const mailOptions = {
-        from: process.env.HOST_MAIL ,
-        to: email,
-        subject: 'Verify your OTP for Registration!',
-        html:sendOTP_MAIL
-      };
+    const mailOptions = {
+      from: process.env.HOST_MAIL,
+      to: email,
+      subject: 'Verify your OTP for Registration!',
+      html: sendOTP_MAIL
+    };
 
-      console.log("Sending....");
+    console.log("Sending....");
 
-      transporter.sendMail(mailOptions,(err,info)=>{
-        if(err){
-            console.log("Error",err)
-        }else{
-            console.log("Sent!",info.response);
-        }
-     });
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log("Error", err);
+      } else {
+        console.log("Sent!", info.response);
+      }
+    });
 
-  }else{
+  } else {
     res.status(400);
-    throw new Error("Voter not Found!");
+    throw new Error("Voter not found!");
   }
-
 });
 
 
 const authVoter = asyncHandler(async (req, res) => {
   console.log("User Login API");
 
-  const { cnic , HandImage } = req.body;
+  const { cnic , password , email } = req.body;
 
-  const voter = await Users.find({cnic: cnic});
+  const voter = await Users.find({cnic: cnic , password: password , email: email});
 
   if(voter){
     res.json({
@@ -176,6 +185,7 @@ const authVoter = asyncHandler(async (req, res) => {
       city: voter.city,
       pic: voter.pic,
       registeredElections : voter.registeredElections,
+      handImage : voter.HandImage
   });
   }else{
     res.status(401);
@@ -183,6 +193,77 @@ const authVoter = asyncHandler(async (req, res) => {
   }
 });
 
+const verifyBeforePasswordUpdate = asyncHandler(async (req, res) => {
+  const { motherName, fatherCnic, cnic } = req.body;
 
-module.exports = {allUsers , registerUser , authVoter};
+  if(!cnic || !fatherCnic || !motherName){
+    return res.status(400).json({
+      success: false,
+      message: "Provide all the details"
+    });
+  }
+
+  try {
+    const citizen = await Citizen.findOne({ cnic });
+
+    if (!citizen) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Credentials"
+      });
+    }
+
+    if (citizen.motherName === motherName && citizen.fatherCnic === fatherCnic) {
+      return res.status(200).json({
+        success: true,
+        message: "Verification successful"
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "Verification failed"
+      });
+    }
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+
+// Is call se pehle. citizen details se uska mother name/fathter CNIC verify krwalo
+const resetPassword = asyncHandler(async(req,res) => {
+  const {newPassword, cnic} = req.body;
+  
+  try{
+    const voter = await Users.findOne({cnic: cnic});
+    console.log(voter);
+    if(!voter){
+      return res.status(400).json({
+        success:false,
+        message:"Voter with provided Cnic not found."
+      })
+    }
+
+    voter.password = newPassword;
+    await voter.save();
+    
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+
+  }catch(error){
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
+
+module.exports = {allUsers , registerUser , authVoter , resetPassword , verifyBeforePasswordUpdate};
   

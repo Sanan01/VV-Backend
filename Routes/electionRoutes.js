@@ -10,4 +10,6 @@ router.get("/getElections",getElections);
 router.put("/toggleElectionStatus",toggleElectionStatus);
 router.put("/deleteElection",deleteElection);
 
+
+
 module.exports = router;

@@ -4,102 +4,58 @@ const Election = require("../Models/ElectionModel");
 
 dotenv.config();
 
-const registerElection = asyncHandler(async(req,res) =>{
+const registerElection = asyncHandler(async (req, res) => {
     console.log("Election Register API");
-    //creation Date and isActive by default jayega
-    const {name, startDate , endDate , parties , candidates} = req.body;
-    console.log("Data in Register Election >> " , name, startDate , endDate , parties , candidates );
+    const { name, startDate, endDate, parties } = req.body;
+    console.log("Data in Register Election >> ", name, startDate, endDate, parties);
 
-    if(!name || !startDate || !endDate || !parties || !candidates){
+    if (!name || !startDate || !endDate || !parties) {
         res.status(400);
-        throw new Error("Please Fill up all the feilds!");
+        throw new Error("Please fill up all the fields!");
     }
 
     const electionExist = await Election.findOne({ name });
 
-    if(electionExist){
+    if (electionExist) {
         res.status(400);
-        throw new Error("Election with this Data Already Exists!");
+        throw new Error("Election with this data already exists!");
+    }
+
+    // Check if each party has at least one candidate registered with it
+    const isValidParties = parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
+
+    if (!isValidParties) {
+        res.status(400);
+        throw new Error("Each party must have at least one candidate registered with it");
     }
 
     const election = await Election.create({
-        name, 
-        startDate, 
-        endDate, 
-        parties, 
-        candidates, 
-        isActive:false , 
-        creationDate: Date.now() 
+        name,
+        startDate,
+        endDate,
+        parties,
+        isActive: false,
+        creationDate: Date.now()
     });
 
-    console.log("Election Created >>" , election);
+    console.log("Election Created >>", election);
 
-    if(election){
+    if (election) {
         res.status(201).json({
             _id: election._id,
             name: election.name,
             startDate: election.startDate,
             endDate: election.endDate,
             parties: election.parties,
-            candidates: election.candidates,
             isActive: election.isActive,
-            creationDate: election.creationDate,     
-    });
-    }else{
+            creationDate: election.creationDate,
+        });
+    } else {
         res.status(400);
-        throw new Error("Election not Created!");
+        throw new Error("Election not created!");
     }
 });
 
-
-// const registerElection = asyncHandler(async(req,res) =>{
-//     console.log("Election Register API");
-//     //creation Date and isActive by default jayega
-//     const {name, startDate , endDate , parties , candidates , results } = req.body;
-//     console.log("Data in Register Election >> " , name, startDate , endDate , parties , candidates , results  );
-
-//     if(!name || !startDate || !endDate || !parties || !candidates){
-//         res.status(400);
-//         throw new Error("Please Fill up all the feilds!");
-//     }
-
-//     const electionExist = await Election.findOne({ name });
-
-//     if(electionExist){
-//         res.status(400);
-//         throw new Error("Election with this Data Already Exists!");
-//     }
-
-//     const election = await Election.create({
-//         name, 
-//         startDate, 
-//         endDate, 
-//         parties, 
-//         candidates, 
-//         isActive:false , 
-//         results,
-//         creationDate: Date.now() 
-//     });
-
-//     console.log("Election Created >>" , election);
-
-//     if(election){
-//         res.status(201).json({
-//             _id: election._id,
-//             name: election.name,
-//             startDate: election.startDate,
-//             endDate: election.endDate,
-//             parties: election.parties,
-//             candidates: election.candidates,
-//             isActive: election.isActive,
-//             creationDate: election.creationDate,   
-//             results: election.results,  
-//     });
-//     }else{
-//         res.status(400);
-//         throw new Error("Election not Created!");
-//     }
-// });
 
 
 const allElections = asyncHandler(async (req, res) => {
@@ -118,21 +74,38 @@ const getElections = asyncHandler(async (req, res) => {
     try {
         const elections = await Election.find()
             .populate({
-                path: 'parties', // Use 'parties' instead of 'Party'
-                select: 'name abbreviation leader _id symbol',
-            }).populate({
-                path: 'candidates', // Use 'parties' instead of 'Party'
-                select: 'name _id party cnic position image ',
+                path: 'parties',
+                populate: {
+                    path: 'party candidates',
+                    select: 'name abbreviation leader symbol', // Select fields you want to include
+                }
             });
 
-        res.json(elections);
+        // Transform the response to include party and candidate details
+        const transformedElections = elections.map(election => {
+            const transformedParties = election.parties.map(party => ({
+                ...party.toObject(),
+                party: {
+                    ...party.party.toObject() // Transform party object to plain JavaScript object
+                },
+                candidates: party.candidates.map(candidate => ({
+                    ...candidate.toObject() // Transform candidate object to plain JavaScript object
+                }))
+            }));
+            return {
+                ...election.toObject(), // Transform election object to plain JavaScript object
+                parties: transformedParties
+            };
+        });
+
+        res.json(transformedElections);
     } catch (error) {
         console.error('Error fetching Elections:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
-module.exports = getElections;
+
 
 const deleteElection = asyncHandler(async (req, res) => {
     console.log("Delete Election API");
@@ -186,6 +159,8 @@ const toggleElectionStatus = asyncHandler(async (req, res) => {
     
    
 });
+
+
 
 
 
