@@ -6,10 +6,10 @@ dotenv.config();
 
 const registerCitizen = asyncHandler(async(req,res) =>{
     console.log("Citizen Register API");
-    const {name,cnic,dob,email,country,city,fatherName,motherName,sex,address,contactNo , pic} =  req.body;
+    const {name,cnic,dob,email,country,city,fatherName,motherName,sex,address,contactNo , pic , fatherCnic} =  req.body;
     
 
-    if (!name || !email || !dob || !cnic || !country || !city || !motherName || !fatherName || !sex || !address || !contactNo){
+    if (!name || !email || !dob || !cnic || !country || !city || !motherName || !fatherName || !sex || !address || !contactNo || !fatherCnic){
         res.status(400);
         throw new Error("Please Fill up all the feilds!")
     }
@@ -23,7 +23,7 @@ const registerCitizen = asyncHandler(async(req,res) =>{
     }
 
     const citizen = await Citizen.create({
-        name,cnic,dob,email,country,city,fatherName,motherName,sex,address,contactNo ,pic
+        name,cnic,dob,email,country,city,fatherName,motherName,sex,address,contactNo ,pic,fatherCnic
     });
 
     console.log("Citizen in Register >> " , citizen)
@@ -43,6 +43,7 @@ const registerCitizen = asyncHandler(async(req,res) =>{
             pic: citizen.pic,
             country:citizen.country,
             city:citizen.city,
+            fatherCnic: citizen.fatherCnic
     });
     } else {
     res.status(400);

@@ -137,5 +137,4 @@ const calculateVotesByParty = asyncHandler(async (req, res) => {
 });
 
 
-
 module.exports = { addVoteForElection, getAllVotesByParty, getAllVotesByCandidate , calculateVotesByParty };

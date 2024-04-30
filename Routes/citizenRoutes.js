@@ -5,7 +5,7 @@ const {registerCitizen , allCitizen , getCitizenCnicVerified} = require('../Cont
 
 const router = express.Router();
 
-router.route("/").post(registerCitizen).get(protect,allCitizen);
+router.route("/").post(registerCitizen).get(allCitizen);
 router.get("/getCitizenCnicVerified/:cnic", getCitizenCnicVerified);
 
 module.exports = router;

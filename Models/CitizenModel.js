@@ -31,6 +31,10 @@ const citizenSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  fatherCnic : {
+    type: Number,
+    required: true
+  },
   motherName: {
     type: String,
     required: true,

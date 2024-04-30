@@ -5,7 +5,7 @@ const {registerElection , allElections , getElections , toggleElectionStatus , d
 
 const router = express.Router();
 
-router.route("/").post(registerElection).get(protect,allElections);
+router.route("/").post(registerElection);
 router.get("/getElections",getElections);
 router.put("/toggleElectionStatus",toggleElectionStatus);
 router.put("/deleteElection",deleteElection);

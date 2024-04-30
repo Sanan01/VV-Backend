@@ -10,7 +10,7 @@ const generateToken = () => {
   return Math.floor(Math.random() * 900000) + 100000;
 };
 
-function sendOtpMailFunc(voter){
+function sendOtpMailFunc(cnic,otp,pic){
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -59,13 +59,13 @@ function sendOtpMailFunc(voter){
       </div>
       <div class="content">
         <div class="user-info">
-          <img src="${voter.pic}" alt="User Profile"> <!-- Replace with the actual image source -->
+          <img src="${pic}" alt="User Profile"> <!-- Replace with the actual image source -->
           <div class="user-details">
-            <p><strong>CNIC:</strong> ${voter.cnic}</p>
+            <p><strong>CNIC:</strong> ${cnic}</p>
           </div>
         </div>
         <p>Use the below provided OTP: </p>
-        <p><strong>OTP: </strong> ${voter.userToken}</p>
+        <p><strong>OTP: </strong> ${otp}</p>
         <p>If you have any questions or concerns, please feel free to contact us by replying to this email.</p>
       </div>
     </div>
@@ -89,9 +89,9 @@ const allUsers = asyncHandler(async (req, res) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   console.log("User Register API");
-  const { name, password, email, cnic, region, city, registeredElections, pic, HandImage, dob } = req.body;
+  const { name, email, cnic, region, city, registeredElections, pic, HandImage, dob } = req.body;
   
-  if (!name || !password || !email || !cnic || !region || !city || !registeredElections || !HandImage || !dob) {
+  if (!name || !email || !cnic || !region || !city || !registeredElections || !HandImage || !dob) {
     res.status(400);
     throw new Error("Please fill up all the fields!");
   }
@@ -112,7 +112,6 @@ const registerUser = asyncHandler(async (req, res) => {
     pic,
     HandImage,
     name,
-    password,
     dob,
     userToken:generateToken()
   });
@@ -123,7 +122,6 @@ const registerUser = asyncHandler(async (req, res) => {
       cnic: voter.cnic,
       email: voter.email,
       name: voter.name,
-      password: voter.password,
       region: voter.region,
       city: voter.city,
       registeredElections: voter.registeredElections,
@@ -168,35 +166,92 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+const sendOTPForAuth = asyncHandler(async(req,res) => {
+  const { cnic , email } = req.body;
+
+  try {
+    const voter = await Users.findOne({ cnic: cnic });
+    if (!voter) {
+      return res.status(400).json({
+        success: false,
+        message: "Voter with provided CNIC not found."
+      });
+    }
+
+    voter.userToken = generateToken();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.HOST_MAIL,
+        pass: process.env.HOST_PASSWORD,
+      },
+    });
+
+    const sendOTP_MAIL = sendOtpMailFunc(voter.cnic , voter.userToken , voter.pic);
+
+    const mailOptions = {
+      from: process.env.HOST_MAIL,
+      to: email,
+      subject: 'Verify your OTP for Authentication!',
+      html: sendOTP_MAIL
+    };
+
+    console.log("Sending....");
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log("Error", err);
+      } else {
+        console.log("Sent!", info.response);
+      }
+    });
+
+    await voter.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+    });
+  } catch(error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
 
 const authVoter = asyncHandler(async (req, res) => {
   console.log("User Login API");
 
-  const { cnic , password , email } = req.body;
+  const { cnic, otp } = req.body;
 
-  const voter = await Users.find({cnic: cnic , password: password , email: email});
+  const voter = await Users.findOne({ cnic: cnic });
 
-  if(voter){
+  if (!voter) {
+    res.status(404);
+    throw new Error("Voter not found.");
+  }
+
+  if (voter.userToken === otp) {
     res.json({
-      _id: voter._id,
-      cnic: voter.cnic,
-      email: voter.email,
-      region: voter.region,
-      city: voter.city,
-      pic: voter.pic,
-      registeredElections : voter.registeredElections,
-      handImage : voter.HandImage
-  });
-  }else{
+      success: true,
+      message: 'OTP Verified for CNIC',
+      voter: voter,
+    });
+  } else {
     res.status(401);
-    throw new Error("Invalid Credentials for Voter.");
+    throw new Error("OTP Not Verified.");
   }
 });
 
-const verifyBeforePasswordUpdate = asyncHandler(async (req, res) => {
+
+const alternateLoginOfHandImage = asyncHandler(async (req, res) => {
   const { motherName, fatherCnic, cnic } = req.body;
 
-  if(!cnic || !fatherCnic || !motherName){
+  if (!cnic || !fatherCnic || !motherName) {
     return res.status(400).json({
       success: false,
       message: "Provide all the details"
@@ -216,7 +271,8 @@ const verifyBeforePasswordUpdate = asyncHandler(async (req, res) => {
     if (citizen.motherName === motherName && citizen.fatherCnic === fatherCnic) {
       return res.status(200).json({
         success: true,
-        message: "Verification successful"
+        message: "Verification successful",
+        voter: citizen
       });
     } else {
       return res.status(200).json({
@@ -226,6 +282,7 @@ const verifyBeforePasswordUpdate = asyncHandler(async (req, res) => {
     }
 
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -233,30 +290,32 @@ const verifyBeforePasswordUpdate = asyncHandler(async (req, res) => {
   }
 });
 
+const verifyHandImage = asyncHandler(async(req,res) =>{
+  console.log("Verify Hand Image API");
+  const {cnic , handImage} = req.body;
 
-// Is call se pehle. citizen details se uska mother name/fathter CNIC verify krwalo
-const resetPassword = asyncHandler(async(req,res) => {
-  const {newPassword, cnic} = req.body;
-  
+  if(!cnic || !handImage){
+    res.status(402);
+      throw new Error("Hand Image / Cnic is missing");
+  }
   try{
-    const voter = await Users.findOne({cnic: cnic});
-    console.log(voter);
-    if(!voter){
-      return res.status(400).json({
-        success:false,
-        message:"Voter with provided Cnic not found."
-      })
+    const voter = await Users.findOne({ cnic });
+
+    if (!voter) {
+      res.status(404);
+      throw new Error("Voter not found.");
     }
 
-    voter.password = newPassword;
-    await voter.save();
-    
-    return res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
-    });
+    if (voter) {
+      res.json({
+        success: true,
+        message: 'OTP Verified for CNIC',
+        voter: voter,
+      });
+    }
 
   }catch(error){
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -264,6 +323,5 @@ const resetPassword = asyncHandler(async(req,res) => {
   }
 });
 
-
-module.exports = {allUsers , registerUser , authVoter , resetPassword , verifyBeforePasswordUpdate};
+module.exports = {allUsers , registerUser , authVoter  , alternateLoginOfHandImage , sendOTPForAuth , verifyHandImage};
   

@@ -4,6 +4,9 @@ const colors = require('colors');
 const express = require('express');
 const connectDatabase = require('./config/database');
 
+const swaggerJSDOC = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
+
 const adminRoutes = require('./Routes/adminRoutes');
 const userRoutes = require('./Routes/userRoutes');
 const partyRoutes = require('./Routes/partyRoutes');
@@ -22,6 +25,27 @@ dotenv.config();
 connectDatabase();
 
 const port = 5000;
+
+// const options = {
+//     definition: {
+//         openapi : '3.0.0',
+//         info : {
+//             title : 'Visionary Voting API\'s',
+//             version: '1.0.0'
+//         },
+//         servers : [
+//             {
+//                 url : 'http://localhost:5000/'
+//             }
+//         ]
+       
+//     } ,
+//     apis : ['./index.js']
+// }
+
+// const swaggerSpec = swaggerJSDOC(options);
+// app.use('/visionary-voting' , swaggerUI.serve , swaggerUI.setup(swaggerSpec))
+
 
 app.get('/',(req,res)=>{
     res.send("API is running!");

@@ -1,12 +1,13 @@
 const express = require("express");
-const {allUsers , registerUser , authVoter , resetPassword , verifyBeforePasswordUpdate} = require('../Controllers/userControllers');
+const {allUsers , registerUser , authVoter  , alternateLoginOfHandImage , sendOTPForAuth , verifyHandImage} = require('../Controllers/userControllers');
 
 const router = express.Router();
 
 router.get("/getUsers", allUsers);
-router.get("/verifyBeforePasswordUpdate", verifyBeforePasswordUpdate);
+router.get("/alternateLoginOfHandImage", alternateLoginOfHandImage);
 router.post("/registerUser", registerUser);
 router.post("/authVoter", authVoter);
-router.put("/resetPassword", resetPassword);
+router.put("/sendOTPForAuth",sendOTPForAuth);
+router.get("/verifyHandImage",verifyHandImage);
 
 module.exports = router;

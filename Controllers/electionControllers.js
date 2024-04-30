@@ -57,18 +57,6 @@ const registerElection = asyncHandler(async (req, res) => {
 });
 
 
-
-const allElections = asyncHandler(async (req, res) => {
-    console.log("Elections all API");
-    try {
-        const elections = await Election.find();
-        res.json(elections);
-      } catch (error) {
-        console.error('Error fetching Elections:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-      }
-});
-
 const getElections = asyncHandler(async (req, res) => {
     console.log("Get Election API");
     try {
@@ -104,7 +92,6 @@ const getElections = asyncHandler(async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 
 
 const deleteElection = asyncHandler(async (req, res) => {
@@ -161,8 +148,4 @@ const toggleElectionStatus = asyncHandler(async (req, res) => {
 });
 
 
-
-
-
-
-module.exports = {registerElection , allElections , getElections , toggleElectionStatus , deleteElection};
+module.exports = {registerElection  , getElections , toggleElectionStatus , deleteElection};
