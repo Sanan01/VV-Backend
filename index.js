@@ -2,7 +2,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const colors = require("colors");
 const express = require("express");
-const connectDatabase = require("./Config/database.js");
+const connectDatabase = require("./Config/database");
 
 const swaggerJSDOC = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
