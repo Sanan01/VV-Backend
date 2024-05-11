@@ -1,46 +1,48 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  name:{
+  name: {
     type: String,
-    required: true 
+    required: true,
   },
-  dob:{
-    type: Date,
-    required:true
-  },
-  status:{
+  dob: {
     type: String,
-    default: 'not-verified'
+    required: true,
   },
-  email: { 
+  status: {
     type: String,
-    unique: true, 
-    required: true 
+    default: "not-verified",
   },
-  cnic : { 
-    type: Number , 
-    unique:true ,
-    required:true
-  },
-  region :{
+  email: {
     type: String,
-    required: true
+    unique: true,
+    required: true,
   },
-  city :{
+  cnic: {
+    type: Number,
+    unique: true,
+    required: true,
+  },
+  region: {
     type: String,
-    required: true
+    required: true,
   },
-  registeredElections: [{
-    election: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Election'
+  city: {
+    type: String,
+    required: true,
+  },
+  registeredElections: [
+    {
+      election: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Election",
+      },
+      hasVoted: {
+        type: Boolean,
+        default: false,
+      },
     },
-    hasVoted: {
-      type: Boolean,
-      default: false
-    }
-  }],
+  ],
   registrationDate: {
     type: Date,
     default: Date.now,
@@ -50,16 +52,17 @@ const userSchema = new mongoose.Schema({
     default:
       "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
   },
-  HandImage :{
-    type : String,
-    default : "",
+  HandImage: {
+    type: String,
+    default: "",
   },
   userToken: {
-    type: String
-  }
-
+    type: String,
+  },
 });
 
-const Users = mongoose.model("Users", userSchema , "Users", { database: "Voting-System" });
+const Users = mongoose.model("Users", userSchema, "Users", {
+  database: "Voting-System",
+});
 
 module.exports = Users;
