@@ -267,12 +267,12 @@ const authVoter = asyncHandler(async (req, res) => {
 const alternateLoginOfHandImage = asyncHandler(async (req, res) => {
   const { motherName, fatherCnic, cnic } = req.body;
 
-  if (!cnic || !fatherCnic || !motherName) {
-    return res.status(400).json({
-      success: false,
-      message: "Provide all the details",
-    });
-  }
+  // if (!cnic || !fatherCnic || !motherName) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "Provide all the details",
+  //   });
+  // }
 
   try {
     const citizen = await Citizen.findOne({ cnic });
