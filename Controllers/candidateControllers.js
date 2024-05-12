@@ -132,4 +132,5 @@ const changeParty = asyncHandler(async (req, res) => {
 
 
 
+
 module.exports = {registerCandidate , allCandidate , getCandidates , deleteCandidate , changeParty};

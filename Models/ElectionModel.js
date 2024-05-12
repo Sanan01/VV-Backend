@@ -20,13 +20,13 @@ const electionSchema = new mongoose.Schema({
       party: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Party',
-        required: true,
+        //required: true,
       },
       candidates: [
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Candidate',
-          required: true,
+          //required: true,
         },
       ],
     },

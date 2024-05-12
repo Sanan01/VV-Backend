@@ -65,7 +65,7 @@ const getElections = asyncHandler(async (req, res) => {
                 path: 'parties',
                 populate: {
                     path: 'party candidates',
-                    select: 'name abbreviation leader symbol', // Select fields you want to include
+                    select: 'name abbreviation leader symbol ', // Select fields you want to include
                 }
             });
 
@@ -150,6 +150,7 @@ const toggleElectionStatus = asyncHandler(async (req, res) => {
 const addPartyToElection = asyncHandler(async (req, res) => {
     console.log("Add Party to Election API");
     const { electionId, partyId, candidates } = req.body;
+    console.log(electionId, partyId, candidates);
 
     try {
         // Find the election
@@ -160,21 +161,28 @@ const addPartyToElection = asyncHandler(async (req, res) => {
         }
 
         // Check if the party already exists in the election
-        const existingParty = election.parties.find(party => party.party.toString() === partyId);
-        if (existingParty) {
-            return res.status(400).json({ message: 'Party already exists in the election' });
-        }
+        const existingPartyIndex = election.parties.findIndex(party => party.party.toString() === partyId);
+        if (existingPartyIndex !== -1) {
+            // If party already exists, check if any of the candidates are already in the party
+            const existingParty = election.parties[existingPartyIndex];
+            const existingCandidateIds = existingParty.candidates.map(candidate => candidate.toString());
+            const newCandidateIds = candidates.map(candidate => candidate.toString());
 
-        // Validate candidates array
-        if (!Array.isArray(candidates) || candidates.length === 0) {
-            return res.status(400).json({ message: 'Candidates array must not be empty' });
-        }
+            // Check if any of the new candidates are already in the party
+            const duplicates = newCandidateIds.filter(candidateId => existingCandidateIds.includes(candidateId));
+            if (duplicates.length > 0) {
+                return res.status(400).json({ message: 'Some candidates are already assigned to the party' });
+            }
 
-        // Add party and its candidates to the election
-        election.parties.push({
-            party: partyId,
-            candidates: candidates
-        });
+            // Add new candidates to the existing party
+            existingParty.candidates.push(...candidates);
+        } else {
+            // If party doesn't exist, create a new party and add it to the election
+            election.parties.push({
+                party: partyId,
+                candidates: candidates
+            });
+        }
 
         await election.save();
 
@@ -185,9 +193,13 @@ const addPartyToElection = asyncHandler(async (req, res) => {
     }
 });
 
+
 const removePartyFromElection = asyncHandler(async (req, res) => {
     console.log("Remove Party from Election API");
+    
     const { electionId, partyId } = req.body;
+
+    console.log(electionId, partyId);
 
     try {
         // Find the election
@@ -214,7 +226,5 @@ const removePartyFromElection = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
-
 
 module.exports = {registerElection  , getElections , toggleElectionStatus , deleteElection , addPartyToElection , removePartyFromElection};
