@@ -147,5 +147,74 @@ const toggleElectionStatus = asyncHandler(async (req, res) => {
    
 });
 
+const addPartyToElection = asyncHandler(async (req, res) => {
+    console.log("Add Party to Election API");
+    const { electionId, partyId, candidates } = req.body;
 
-module.exports = {registerElection  , getElections , toggleElectionStatus , deleteElection};
+    try {
+        // Find the election
+        const election = await Election.findById(electionId);
+
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found' });
+        }
+
+        // Check if the party already exists in the election
+        const existingParty = election.parties.find(party => party.party.toString() === partyId);
+        if (existingParty) {
+            return res.status(400).json({ message: 'Party already exists in the election' });
+        }
+
+        // Validate candidates array
+        if (!Array.isArray(candidates) || candidates.length === 0) {
+            return res.status(400).json({ message: 'Candidates array must not be empty' });
+        }
+
+        // Add party and its candidates to the election
+        election.parties.push({
+            party: partyId,
+            candidates: candidates
+        });
+
+        await election.save();
+
+        return res.status(200).json({ message: 'Party added to the election successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+const removePartyFromElection = asyncHandler(async (req, res) => {
+    console.log("Remove Party from Election API");
+    const { electionId, partyId } = req.body;
+
+    try {
+        // Find the election
+        const election = await Election.findById(electionId);
+
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found' });
+        }
+
+        // Check if the party exists in the election
+        const existingPartyIndex = election.parties.findIndex(party => party.party.toString() === partyId);
+        if (existingPartyIndex === -1) {
+            return res.status(400).json({ message: 'Party does not exist in the election' });
+        }
+
+        // Remove the party from the election
+        election.parties.splice(existingPartyIndex, 1);
+
+        await election.save();
+
+        return res.status(200).json({ message: 'Party removed from the election successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+module.exports = {registerElection  , getElections , toggleElectionStatus , deleteElection , addPartyToElection , removePartyFromElection};

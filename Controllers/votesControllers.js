@@ -3,7 +3,7 @@ const Election = require("../Models/ElectionModel");
 
 const addVoteForElection = asyncHandler(async (req, res) => {
     console.log("Add Vote Election Status API");
-    const { electionId, partyId, candidateId } = req.body;
+    const { electionId, partyId, candidateId, voterId } = req.body;
     
     try {
         const election = await Election.findOne({ _id: electionId });
@@ -26,6 +26,15 @@ const addVoteForElection = asyncHandler(async (req, res) => {
 
         if (!party.candidates.includes(candidateId)) {
             return res.status(400).json({ message: 'Invalid candidateId for the specified party' });
+        }
+
+        // Check if the voter has already voted in this election
+        if (election.voters.includes(voterId)) {
+            return res.status(400).json({ message: 'You have already voted in this election' });
+        } else {
+            // Update hasVoted status for the voter in this election
+            election.voters.push(voterId);
+            await election.save();
         }
 
         let result = election.results.find(result =>
@@ -52,7 +61,6 @@ const addVoteForElection = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 const getAllVotesByParty = asyncHandler(async (req, res) => {
     console.log("Get Vote by Party Election Status API");

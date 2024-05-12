@@ -57,6 +57,10 @@ const electionSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isRegActive: {
+    type: Boolean,
+    default: false,
+  },
   creationDate: {
     type: Date,
     default: Date.now(),

@@ -96,4 +96,40 @@ const deleteCandidate = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = {registerCandidate , allCandidate , getCandidates , deleteCandidate};
+
+const changeParty = asyncHandler(async (req, res) => {
+  const { candidateId, partyId } = req.body;
+  console.log(candidateId)
+  console.log("Candidate Deleting API");
+
+  try {
+    // Assuming `Candidate` is your Mongoose model
+    const candidate = await Candidate.findOne({ _id: candidateId });
+
+    if (!candidate) {
+      // If candidate is not found
+      return res.status(404).json({ message: 'Candidate not found' });
+    }
+
+    // Check if the candidate is a party leader in any party
+    const isPartyLeader = await Candidate.exists({ _id: candidateId, position: 'Party Leader' });
+    if (isPartyLeader) {
+      return res.status(400).json({ message: 'Candidate is a party leader and cannot be reassigned to another party' });
+    }
+
+    // Update the candidate's party with the provided partyId
+    candidate.party = partyId;
+    await candidate.save();
+
+    res.json({ message: 'Candidate party updated successfully', updatedCandidate: candidate });
+  } catch (error) {
+    console.error('Error updating candidate party:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+
+
+
+module.exports = {registerCandidate , allCandidate , getCandidates , deleteCandidate , changeParty};
