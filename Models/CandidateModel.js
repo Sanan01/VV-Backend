@@ -9,6 +9,7 @@ const candidateSchema = new mongoose.Schema({
   party: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Party',
+    //type:String,
     required: true,
   },
   cnic: {
