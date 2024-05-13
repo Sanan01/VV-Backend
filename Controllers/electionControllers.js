@@ -6,10 +6,10 @@ dotenv.config();
 
 const registerElection = asyncHandler(async (req, res) => {
     console.log("Election Register API");
-    const { name, startDate, endDate, parties } = req.body;
-    console.log("Data in Register Election >> ", name, startDate, endDate, parties);
+    const { name, startDate, endDate } = req.body;
+    console.log("Data in Register Election >> ", name, startDate, endDate);
 
-    if (!name || !startDate || !endDate || !parties) {
+    if (!name || !startDate || !endDate) {
         res.status(400);
         throw new Error("Please fill up all the fields!");
     }
@@ -35,6 +35,7 @@ const registerElection = asyncHandler(async (req, res) => {
         endDate,
         parties,
         isActive: false,
+        isRegActive:false,
         creationDate: Date.now()
     });
 
@@ -49,6 +50,7 @@ const registerElection = asyncHandler(async (req, res) => {
             parties: election.parties,
             isActive: election.isActive,
             creationDate: election.creationDate,
+            isRegActive : election.isRegActive,
         });
     } else {
         res.status(400);
@@ -227,4 +229,24 @@ const removePartyFromElection = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = {registerElection  , getElections , toggleElectionStatus , deleteElection , addPartyToElection , removePartyFromElection};
+
+const toggleIsRegActive = asyncHandler(async(req,res) => {
+    console.log("Is Reg Active API");
+
+    const { electionId } = req.body;
+    if (!electionId) {
+        return res.status(400).json({ success: false, message: 'Election ID is required in the request body' });
+    }
+    const election = await Election.findById(electionId);
+
+    if (!election) {
+        return res.status(404).json({ success: false, message: 'Election not found' });
+    }
+    election.isRegActive = !election.isRegActive;
+    await election.save();
+    
+    res.status(200).json({ success: true, message: 'Election status toggled successfully', data: election });
+
+});
+
+module.exports = {registerElection  , getElections , toggleElectionStatus , deleteElection , addPartyToElection , removePartyFromElection , toggleIsRegActive};
