@@ -7,9 +7,8 @@ const candidateSchema = new mongoose.Schema({
     trim: true,
   },
   party: {
-    // type: mongoose.Schema.Types.ObjectId,
-    // ref: 'Party',
-    type:String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Party',
     required: true,
   },
   cnic: {
