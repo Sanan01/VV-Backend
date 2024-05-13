@@ -6,8 +6,8 @@ dotenv.config();
 
 const registerElection = asyncHandler(async (req, res) => {
     console.log("Election Register API");
-    const { name, startDate, endDate } = req.body;
-    console.log("Data in Register Election >> ", name, startDate, endDate);
+    const { name, startDate, endDate , parties , results } = req.body;
+    console.log("Data in Register Election >> ", name, startDate, endDate , parties , results);
 
     if (!name || !startDate || !endDate) {
         res.status(400);
@@ -22,12 +22,12 @@ const registerElection = asyncHandler(async (req, res) => {
     }
 
     // Check if each party has at least one candidate registered with it
-    const isValidParties = parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
+    // const isValidParties = parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
 
-    if (!isValidParties) {
-        res.status(400);
-        throw new Error("Each party must have at least one candidate registered with it");
-    }
+    // if (!isValidParties) {
+    //     res.status(400);
+    //     throw new Error("Each party must have at least one candidate registered with it");
+    // }
 
     const election = await Election.create({
         name,
@@ -244,7 +244,7 @@ const toggleIsRegActive = asyncHandler(async(req,res) => {
     }
     election.isRegActive = !election.isRegActive;
     await election.save();
-    
+
     res.status(200).json({ success: true, message: 'Election status toggled successfully', data: election });
 
 });
