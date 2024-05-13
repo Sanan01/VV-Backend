@@ -1,3 +1,4 @@
+
 const asyncHandler = require('express-async-handler');
 const dotenv = require('dotenv');
 const Candidate = require("../Models/CandidateModel");
@@ -127,10 +128,6 @@ const changeParty = asyncHandler(async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
-
-
-
 
 
 module.exports = {registerCandidate , allCandidate , getCandidates , deleteCandidate , changeParty};

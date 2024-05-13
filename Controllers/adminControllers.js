@@ -1,16 +1,16 @@
+
 const asyncHandler = require('express-async-handler');
 const nodemailer = require('nodemailer');
 const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
+
 const Admin = require("../Models/AdminModel");
 const generateToken = require('../Config/generateToken');
 
 dotenv.config();
 
 const generateTokenForPassword = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: "150s",
-    });
+  return Math.floor(Math.random() * 900000) + 100000;
 };
 
 function registrationHTMLFunc(admin , URL) {
@@ -136,8 +136,7 @@ function resetPasswordFunc(admin,URL_For_Password,Token){
           </div>
         </div>
         <p>Click the button below to verify the account:</p>
-        <p>Use This Token There : <strong>${Token}</strong></p>
-        <button class="verify-button"><a href=${URL_For_Password}>Reset Password</a></button>
+        <p>OTP:  <strong>${Token}</strong></p>
         <p>This Link will expire in <strong>150 seconds</strong></p>
         <p>If you have any questions or concerns, please feel free to contact us by replying to this email.</p>
       </div>
@@ -223,11 +222,11 @@ const registerAdmin = asyncHandler(async(req,res) =>{
             pic: admin.pic,
             province: admin.province,
             city: admin.city,
-            token: generateToken(admin._id),
+            token: generateToken(),
             adminStatus:admin.adminStatus,
     });
 
-    const URL = `http://localhost:3000/verifyAccount/${admin.id}`
+    const URL = `https://visionary-voting-admin.netlify.app/`
 
     const transporter = nodemailer.createTransport({
       service:"gmail",

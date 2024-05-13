@@ -340,11 +340,5 @@ const verifyHandImage = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = {
-  allUsers,
-  registerUser,
-  authVoter,
-  alternateLoginOfHandImage,
-  sendOTPForAuth,
-  verifyHandImage,
+module.exports = {allUsers,registerUser,authVoter,alternateLoginOfHandImage,sendOTPForAuth,verifyHandImage,
 };

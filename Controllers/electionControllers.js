@@ -1,3 +1,4 @@
+
 const asyncHandler = require('express-async-handler');
 const dotenv = require('dotenv');
 const Election = require("../Models/ElectionModel");
@@ -58,7 +59,6 @@ const registerElection = asyncHandler(async (req, res) => {
     }
 });
 
-
 const getElections = asyncHandler(async (req, res) => {
     console.log("Get Election API");
     try {
@@ -95,7 +95,6 @@ const getElections = asyncHandler(async (req, res) => {
     }
 });
 
-
 const deleteElection = asyncHandler(async (req, res) => {
     console.log("Delete Election API");
 
@@ -125,7 +124,6 @@ const deleteElection = asyncHandler(async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 
 const toggleElectionStatus = asyncHandler(async (req, res) => {
     console.log("Toggle Election Status API");
@@ -195,7 +193,6 @@ const addPartyToElection = asyncHandler(async (req, res) => {
     }
 });
 
-
 const removePartyFromElection = asyncHandler(async (req, res) => {
     console.log("Remove Party from Election API");
     
@@ -228,7 +225,6 @@ const removePartyFromElection = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 const toggleIsRegActive = asyncHandler(async(req,res) => {
     console.log("Is Reg Active API");

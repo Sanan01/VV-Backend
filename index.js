@@ -1,3 +1,4 @@
+
 const cors = require("cors");
 const dotenv = require("dotenv");
 const colors = require("colors");
@@ -57,7 +58,6 @@ app.use("/api/candidate", candidateRoutes);
 app.use("/api/election", electionRoutes);
 app.use("/api/votes", votesRoutes);
 
-// Error Handling middlewares
 app.use(notFound);
 app.use(errorHandler);
 

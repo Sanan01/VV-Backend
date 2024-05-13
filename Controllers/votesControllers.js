@@ -1,3 +1,4 @@
+
 const asyncHandler = require('express-async-handler');
 const Election = require("../Models/ElectionModel");
 
@@ -143,6 +144,5 @@ const calculateVotesByParty = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 module.exports = { addVoteForElection, getAllVotesByParty, getAllVotesByCandidate , calculateVotesByParty };
