@@ -68,9 +68,9 @@ const electionSchema = new mongoose.Schema({
 });
 
 // Custom validator to ensure each party has candidates registered with it
-electionSchema.path('parties').validate(function(parties) {
-    return parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
-}, 'Each party must have at least one candidate registered with it');
+// electionSchema.path('parties').validate(function(parties) {
+//     return parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
+// }, 'Each party must have at least one candidate registered with it');
 
 const Election = mongoose.model("Election", electionSchema , "Elections", { database: "Voting-System" });
 
