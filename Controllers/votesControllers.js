@@ -1,6 +1,6 @@
-
 const asyncHandler = require('express-async-handler');
 const Election = require("../Models/ElectionModel");
+const axios = require('axios');
 
 const addVoteForElection = asyncHandler(async (req, res) => {
     console.log("Add Vote Election Status API");
@@ -35,9 +35,9 @@ const addVoteForElection = asyncHandler(async (req, res) => {
         } else {
             // Update hasVoted status for the voter in this election
             election.voters.push(voterId);
-            await election.save();
         }
 
+        // Increment vote count
         let result = election.results.find(result =>
             result.party.toString() === partyId && result.candidate.toString() === candidateId
         );
@@ -53,15 +53,40 @@ const addVoteForElection = asyncHandler(async (req, res) => {
             result.votes += 1;
         }
 
+        // Calculate and store hash value
+        const dataToHash = { electionId, partyId, candidateId, voteCount: result.votes };
+        const hashObject = {
+            data: dataToHash,
+            timestamp: new Date().toISOString()
+        };
+
+        const hashResponse = await axios({
+            method: 'post',
+            url: 'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+            data: hashObject,
+            headers: {
+                pinata_api_key: '39672bd0f041ffa01932',
+                pinata_secret_api_key: 'f030b1154db8d572bcd5a946438bdc83846a07f637eade929a533e7aaff4488d',
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const hashValue = hashResponse.data.IpfsHash;
+        console.log('Hash Value:', hashValue);
+
+        // Update hash value and latest vote count in election results
+        result.latestIPFSHash = hashValue;
+
         await election.save();
 
-        return res.status(200).json({ message: 'Vote added successfully' });
+        return res.status(200).json({ message: 'Vote added successfully', hashValue });
 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 const getAllVotesByParty = asyncHandler(async (req, res) => {
     console.log("Get Vote by Party Election Status API");
@@ -74,10 +99,19 @@ const getAllVotesByParty = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Election not found' });
         }
 
-        const partyVotes = election.results.filter(result => result.party.toString() === partyId);
-        //const countPartyVotes = partyVotes.reduce((acc, result) => acc + result.votes, 0);
+        const partyResult = election.results.find(result => result.party.toString() === partyId);
         
-        return res.status(200).json({ votes: partyVotes });
+        if (!partyResult) {
+            return res.status(404).json({ message: 'Party not found in election results' });
+        }
+
+        const hashValue = partyResult.latestIPFSHash;
+
+        // Fetch data from IPFS using the hash value
+        const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + hashValue);
+        const ipfsData = ipfsResponse.data;
+
+        return res.status(200).json({votes: ipfsData });
 
     } catch (error) {
         console.error(error);
@@ -96,17 +130,26 @@ const getAllVotesByCandidate = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Election not found' });
         }
 
-        const candidateVotes = election.results.filter(result => result.candidate.toString() === candidateId && result.party.toString() === partyId);
+        const candidateResult = election.results.find(result => result.candidate.toString() === candidateId && result.party.toString() === partyId);
+        
+        if (!candidateResult) {
+            return res.status(404).json({ message: 'Candidate not found in election results for the specified party' });
+        }
 
-        //const votesByCandidate = candidateVotes.reduce((acc, result) => acc + result.votes, 0);
+        const hashValue = candidateResult.latestIPFSHash;
 
-        return res.status(200).json({ votes: candidateVotes });
+        // Fetch data from IPFS using the hash value
+        const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + hashValue);
+        const ipfsData = ipfsResponse.data;
+
+        return res.status(200).json({votes: ipfsData});
 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 const calculateVotesByParty = asyncHandler(async (req, res) => {
     const { electionId } = req.params;
