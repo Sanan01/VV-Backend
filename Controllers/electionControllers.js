@@ -85,8 +85,8 @@ const getElections = asyncHandler(async (req, res) => {
                             }
                         }
                     );
-                    const ipfsData = ipfsResponse.data;
-                    result.votes = ipfsData.data.voteCount;
+                    const ipfsData = ipfsResponse.data.data;
+                    result.votes = ipfsData.voteCount;
                     return result;
                 } catch (error) {
                     console.error('Error fetching data from IPFS:', error);
