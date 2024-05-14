@@ -4,7 +4,7 @@ const {allUsers , registerUser , authVoter  , alternateLoginOfHandImage , sendOT
 const router = express.Router();
 
 router.get("/getUsers", allUsers);
-router.get("/alternateLoginOfHandImage", alternateLoginOfHandImage);
+router.post("/alternateLoginOfHandImage", alternateLoginOfHandImage);
 router.post("/registerUser", registerUser);
 router.post("/authVoter", authVoter);
 router.put("/sendOTPForAuth",sendOTPForAuth);
