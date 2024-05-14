@@ -2,7 +2,6 @@
 const asyncHandler = require('express-async-handler');
 const dotenv = require('dotenv');
 const Election = require("../Models/ElectionModel");
-const axios = require("axios");
 
 dotenv.config();
 
@@ -68,31 +67,12 @@ const getElections = asyncHandler(async (req, res) => {
                 path: 'parties',
                 populate: {
                     path: 'party candidates',
-                    select: 'name abbreviation leader symbol', // Select fields you want to include
+                    select: 'name abbreviation leader symbol ', // Select fields you want to include
                 }
             });
 
-        // Iterate over each election
-        const transformedElections = await Promise.all(elections.map(async (election) => {
-            // Iterate over each result of the election
-            // const transformedResults = await Promise.all(election.results.map(async (result) => {
-            //     try {
-            //         // Fetch data from IPFS using the latestIPFSHash in result
-            //         console.log("Latest Hash >>>" , result.latestIPFSHash)
-            //         const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + result.latestIPFSHash);
-            //         const ipfsData = ipfsResponse.data;
-            //         console.log("Data >> " ,  ipfsData)
-            //         // Update the votes in the result based on the IPFS data
-            //         result.votes = ipfsData.data.voteCount; // Assuming voteCount is present in the IPFS data
-            //         console.log(ipfsData.data.voteCount)
-            //         return result;
-            //     } catch (error) {
-            //         console.error('Error fetching data from IPFS:', error);
-            //         throw error;
-            //     }
-            // }));
-
-            // Return the election object with updated results and transformed parties
+        // Transform the response to include party and candidate details
+        const transformedElections = elections.map(election => {
             const transformedParties = election.parties.map(party => ({
                 ...party.toObject(),
                 party: {
@@ -102,22 +82,18 @@ const getElections = asyncHandler(async (req, res) => {
                     ...candidate.toObject() // Transform candidate object to plain JavaScript object
                 }))
             }));
-
             return {
                 ...election.toObject(), // Transform election object to plain JavaScript object
-                parties: transformedParties,
-                //results: transformedResults
+                parties: transformedParties
             };
-        }));
+        });
 
         res.json(transformedElections);
     } catch (error) {
         console.error('Error fetching Elections:', error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-
 
 const deleteElection = asyncHandler(async (req, res) => {
     console.log("Delete Election API");
