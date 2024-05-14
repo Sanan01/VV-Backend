@@ -81,7 +81,7 @@ const getElections = asyncHandler(async (req, res) => {
                         {
                             headers: {
                                 // Replace with your actual API key or any required headers
-                                'Authorization': `Bearer 39672bd0f041ffa01932`
+                                'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1Njg4OTJiYy05NTVkLTRmZjMtOWQ4ZC1kYWQwODUwMDhlMGIiLCJlbWFpbCI6Im11aGFtbWFkenVuaXF1ZTRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjM5NjcyYmQwZjA0MWZmYTAxOTMyIiwic2NvcGVkS2V5U2VjcmV0IjoiZjAzMGIxMTU0ZGI4ZDU3MmJjZDVhOTQ2NDM4YmRjODM4NDZhMDdmNjM3ZWFkZTkyOWE1MzNlN2FhZmY0NDg4ZCIsImlhdCI6MTcxNTY4ODg2MX0.rEN1X8p37uWQZxifMKDW8bVzThaLJ7pSEz4Z-UnIi1E`
                             }
                         }
                     );
