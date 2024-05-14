@@ -78,13 +78,13 @@ const getElections = asyncHandler(async (req, res) => {
             const transformedResults = await Promise.all(election.results.map(async (result) => {
                 try {
                     // Fetch data from IPFS using the latestIPFSHash in result
-                    //console.log("Latest Hash >>>" , result.latestIPFSHash)
+                    console.log("Latest Hash >>>" , result.latestIPFSHash)
                     const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + result.latestIPFSHash);
                     const ipfsData = ipfsResponse.data;
                     //console.log("Data >> " ,  ipfsData)
                     // Update the votes in the result based on the IPFS data
                     result.votes = ipfsData.data.voteCount; // Assuming voteCount is present in the IPFS data
-                    console.log(ipfsData.data)
+                    console.log(ipfsData.data.voteCount)
                     return result;
                 } catch (error) {
                     console.error('Error fetching data from IPFS:', error);
