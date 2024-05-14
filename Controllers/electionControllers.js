@@ -60,6 +60,7 @@ const registerElection = asyncHandler(async (req, res) => {
 });
 
 const axios = require('axios');
+const BEARER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1Njg4OTJiYy05NTVkLTRmZjMtOWQ4ZC1kYWQwODUwMDhlMGIiLCJlbWFpbCI6Im11aGFtbWFkenVuaXF1ZTRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjM5NjcyYmQwZjA0MWZmYTAxOTMyIiwic2NvcGVkS2V5U2VjcmV0IjoiZjAzMGIxMTU0ZGI4ZDU3MmJjZDVhOTQ2NDM4YmRjODM4NDZhMDdmNjM3ZWFkZTkyOWE1MzNlN2FhZmY0NDg4ZCIsImlhdCI6MTcxNTY4ODg2MX0.rEN1X8p37uWQZxifMKDW8bVzThaLJ7pSEz4Z-UnIi1E';
 
 const getElections = asyncHandler(async (req, res) => {
     console.log("Get Election API");
@@ -80,16 +81,21 @@ const getElections = asyncHandler(async (req, res) => {
                         'https://gateway.pinata.cloud/ipfs/' + result.latestIPFSHash,
                         {
                             headers: {
-                                // Replace with your actual API key or any required headers
-                                'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1Njg4OTJiYy05NTVkLTRmZjMtOWQ4ZC1kYWQwODUwMDhlMGIiLCJlbWFpbCI6Im11aGFtbWFkenVuaXF1ZTRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjM5NjcyYmQwZjA0MWZmYTAxOTMyIiwic2NvcGVkS2V5U2VjcmV0IjoiZjAzMGIxMTU0ZGI4ZDU3MmJjZDVhOTQ2NDM4YmRjODM4NDZhMDdmNjM3ZWFkZTkyOWE1MzNlN2FhZmY0NDg4ZCIsImlhdCI6MTcxNTY4ODg2MX0.rEN1X8p37uWQZxifMKDW8bVzThaLJ7pSEz4Z-UnIi1E`
+                                'Authorization': BEARER_TOKEN
                             }
                         }
                     );
+
+                    // Check if the response data format is as expected
+                    if (!ipfsResponse.data || !ipfsResponse.data.data || !ipfsResponse.data.data.voteCount) {
+                        throw new Error('Unexpected IPFS response format');
+                    }
+
                     const ipfsData = ipfsResponse.data.data;
                     result.votes = ipfsData.voteCount;
                     return result;
                 } catch (error) {
-                    console.error('Error fetching data from IPFS:', error);
+                    console.error('Error fetching data from IPFS:', error.response ? error.response.data : error.message);
                     throw error;
                 }
             }));
@@ -113,7 +119,7 @@ const getElections = asyncHandler(async (req, res) => {
 
         res.json(transformedElections);
     } catch (error) {
-        console.error('Error fetching Elections:', error);
+        console.error('Error fetching Elections:', error.message);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });
