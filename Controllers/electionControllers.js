@@ -22,20 +22,13 @@ const registerElection = asyncHandler(async (req, res) => {
         throw new Error("Election with this data already exists!");
     }
 
-    // Check if each party has at least one candidate registered with it
-    // const isValidParties = parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
-
-    // if (!isValidParties) {
-    //     res.status(400);
-    //     throw new Error("Each party must have at least one candidate registered with it");
-    // }
-
     const election = await Election.create({
         name,
         startDate,
         endDate,
         parties,
         isActive: false,
+        results,
         isRegActive:false,
         creationDate: Date.now()
     });
@@ -50,6 +43,7 @@ const registerElection = asyncHandler(async (req, res) => {
             endDate: election.endDate,
             parties: election.parties,
             isActive: election.isActive,
+            results:election.results,
             creationDate: election.creationDate,
             isRegActive : election.isRegActive,
         });
@@ -75,30 +69,6 @@ const getElections = asyncHandler(async (req, res) => {
             });
 
         const transformedElections = await Promise.all(elections.map(async (election) => {
-            // const transformedResults = await Promise.all(election.results.map(async (result) => {
-            //     try {
-            //         const ipfsResponse = await axios.get(
-            //             'https://gateway.pinata.cloud/ipfs/' + result.latestIPFSHash,
-            //             {
-            //                 headers: {
-            //                     'Authorization': BEARER_TOKEN
-            //                 }
-            //             }
-            //         );
-
-            //         // Check if the response data format is as expected
-            //         if (!ipfsResponse.data || !ipfsResponse.data.data || !ipfsResponse.data.data.voteCount) {
-            //             throw new Error('Unexpected IPFS response format');
-            //         }
-
-            //         const ipfsData = ipfsResponse.data.data;
-            //         result.votes = ipfsData.voteCount;
-            //         return result;
-            //     } catch (error) {
-            //         console.error('Error fetching data from IPFS:', error.response ? error.response.data : error.message);
-            //         throw error;
-            //     }
-            // }));
 
             const transformedParties = election.parties.map(party => ({
                 ...party.toObject(),
