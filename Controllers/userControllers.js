@@ -275,6 +275,13 @@ const alternateLoginOfHandImage = asyncHandler(async (req, res) => {
   // }
 
   try {
+    const voter = await Users.findOne({ cnic });
+    if(!voter){
+      return res.status(400).json({
+        success: false,
+        message: "Not Registered",
+      });
+    }
     const citizen = await Citizen.findOne({ cnic });
 
     if (!citizen) {
