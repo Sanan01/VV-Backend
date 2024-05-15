@@ -207,8 +207,8 @@ const getHashValueByPartyCandidate = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Candidate not found in election results for the specified party' });
         }
 
-        const hashValue = candidateResult.latestIPFSHash;
-        console.log(`Hash value found: ${hashValue}`);
+        //const hashValue = candidateResult.latestIPFSHash;
+        //console.log(`Hash value found: ${hashValue}`);
         return res.status(200).json({ hashValue: candidateResult.latestIPFSHash });
 
     } catch (error) {
