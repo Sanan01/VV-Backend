@@ -124,14 +124,14 @@ const addVoteForElection = asyncHandler(async (req, res) => {
         if (!result) {
             // Candidate-party combination not found, create a new result entry with initial vote count
             console.log("Creating new result entry for partyId:", partyId, "and candidateId:", candidateId);
-            result = {
+            resultTemp = {
                 party: partyId,
                 candidate: candidateId,
                 votes: 1,
                 latestIPFSHash: newHash,
             };
-            election.results.push(result); // Add the new result entry to the election results array
-            console.log("New result entry added:", result);
+            election.results.push(resultTemp); // Add the new result entry to the election results array
+            console.log("New result entry added:", resultTemp);
         } else {
             // Candidate-party combination found, increment vote count and update the hash
             console.log("Prev Hash >>", result.latestIPFSHash);
