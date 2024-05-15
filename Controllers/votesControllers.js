@@ -90,7 +90,7 @@ const axios = require('axios');
 
 const addVoteForElection = asyncHandler(async (req, res) => {
     console.log("Add Vote Election Status API");
-    const { electionId, partyId, candidateId, voterId , newHash  } = req.body;
+    const { electionId, partyId, candidateId, voterId, newHash } = req.body;
     
     try {
         const election = await Election.findOne({ _id: electionId });
@@ -123,12 +123,15 @@ const addVoteForElection = asyncHandler(async (req, res) => {
             election.voters.push(voterId);
         }
 
-        // Increment vote count
+        console.log("Election before modification:", JSON.stringify(election, null, 2));
+
+        // Increment vote count or add new candidate-party result
         let result = election.results.find(result =>
             result.party.toString() === partyId && result.candidate.toString() === candidateId
         );
 
         if (!result) {
+            // Candidate-party combination not found, create new result entry
             result = {
                 party: partyId,
                 candidate: candidateId,
@@ -137,13 +140,16 @@ const addVoteForElection = asyncHandler(async (req, res) => {
             };
             election.results.push(result);
         } else {
-            console.log("Prev Hash >> " , result.latestIPFSHash)
-            result.votes += 1,
-            result.latestIPFSHash= newHash
+            // Candidate-party combination found, increment vote count and update hash
+            console.log("Prev Hash >>", result.latestIPFSHash);
+            result.votes += 1;
+            result.latestIPFSHash = newHash;
         }
 
+        console.log("Election after modification:", JSON.stringify(election, null, 2));
+
         await election.save();
-        console.log("New Hash >> " , result.latestIPFSHash)
+        console.log("New Hash >>", result.latestIPFSHash);
 
         return res.status(200).json({ message: 'Vote added successfully' });
 
@@ -152,7 +158,6 @@ const addVoteForElection = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 
 
