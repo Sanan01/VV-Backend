@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.put("/addVoteForParty" , addVoteForElection);
 router.get("/getAllVotesByParty" , getAllVotesByParty);
-router.get("/getAllVotesByCandidate" , getAllVotesByCandidate);
+router.post("/getAllVotesByCandidate" , getAllVotesByCandidate);
 router.get("/calculateVotesByParty/:electionId" , calculateVotesByParty);
 router.post("/getHashValueByPartyCandidate" , getHashValueByPartyCandidate);
 
