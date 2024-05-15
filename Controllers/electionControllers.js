@@ -22,6 +22,14 @@ const registerElection = asyncHandler(async (req, res) => {
         throw new Error("Election with this data already exists!");
     }
 
+    // Check if each party has at least one candidate registered with it
+    // const isValidParties = parties.every(party => Array.isArray(party.candidates) && party.candidates.length > 0);
+
+    // if (!isValidParties) {
+    //     res.status(400);
+    //     throw new Error("Each party must have at least one candidate registered with it");
+    // }
+
     const election = await Election.create({
         name,
         startDate,
@@ -147,6 +155,52 @@ const toggleElectionStatus = asyncHandler(async (req, res) => {
    
 });
 
+// const addPartyToElection = asyncHandler(async (req, res) => {
+//     console.log("Add Party to Election API");
+//     const { electionId, partyId, candidates } = req.body;
+//     console.log(electionId, partyId, candidates);
+
+//     try {
+//         // Find the election
+//         const election = await Election.findById(electionId);
+
+//         if (!election) {
+//             return res.status(404).json({ message: 'Election not found' });
+//         }
+
+//         // Check if the party already exists in the election
+//         const existingPartyIndex = election.parties.findIndex(party => party.party.toString() === partyId);
+//         if (existingPartyIndex !== -1) {
+//             // If party already exists, check if any of the candidates are already in the party
+//             const existingParty = election.parties[existingPartyIndex];
+//             const existingCandidateIds = existingParty.candidates.map(candidate => candidate.toString());
+//             const newCandidateIds = candidates.map(candidate => candidate.toString());
+
+//             // Check if any of the new candidates are already in the party
+//             const duplicates = newCandidateIds.filter(candidateId => existingCandidateIds.includes(candidateId));
+//             if (duplicates.length > 0) {
+//                 return res.status(400).json({ message: 'Some candidates are already assigned to the party' });
+//             }
+
+//             // Add new candidates to the existing party
+//             existingParty.candidates.push(...candidates);
+//         } else {
+//             // If party doesn't exist, create a new party and add it to the election
+//             election.parties.push({
+//                 party: partyId,
+//                 candidates: candidates
+//             });
+//         }
+
+//         await election.save();
+
+//         return res.status(200).json({ message: 'Party added to the election successfully' });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ message: 'Internal server error' });
+//     }
+// });
+
 const addPartyToElection = asyncHandler(async (req, res) => {
     console.log("Add Party to Election API");
     const { electionId, partyId, candidates } = req.body;
@@ -176,11 +230,32 @@ const addPartyToElection = asyncHandler(async (req, res) => {
 
             // Add new candidates to the existing party
             existingParty.candidates.push(...candidates);
+
+            // Add new candidates to the results with default votes
+            candidates.forEach(candidateId => {
+                election.results.push({
+                    party: partyId,
+                    candidate: candidateId,
+                    votes: 0,
+                    latestIPFSHash: '' // Assuming you want to initialize it with an empty string or a default hash
+                });
+            });
+
         } else {
             // If party doesn't exist, create a new party and add it to the election
             election.parties.push({
                 party: partyId,
                 candidates: candidates
+            });
+
+            // Add party and its candidates to the results with default votes
+            candidates.forEach(candidateId => {
+                election.results.push({
+                    party: partyId,
+                    candidate: candidateId,
+                    votes: 0,
+                    latestIPFSHash: '' // Assuming you want to initialize it with an empty string or a default hash
+                });
             });
         }
 
@@ -192,6 +267,8 @@ const addPartyToElection = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
 
 const removePartyFromElection = asyncHandler(async (req, res) => {
     console.log("Remove Party from Election API");
