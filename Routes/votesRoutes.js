@@ -11,6 +11,6 @@ router.put("/addVoteForParty" , addVoteForElection);
 router.get("/getAllVotesByParty" , getAllVotesByParty);
 router.get("/getAllVotesByCandidate" , getAllVotesByCandidate);
 router.get("/calculateVotesByParty/:electionId" , calculateVotesByParty);
-router.get("/getHashValueByPartyCandidate" , getHashValueByPartyCandidate);
+router.post("/getHashValueByPartyCandidate" , getHashValueByPartyCandidate);
 
 module.exports = router;
