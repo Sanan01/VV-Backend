@@ -51,6 +51,9 @@ const electionSchema = new mongoose.Schema({
         type: Number,
         default: 0,
       },
+      latestIPFSHash: {
+        type: String
+      }
     },
   ],
   isActive: {
