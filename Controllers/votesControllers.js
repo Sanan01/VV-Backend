@@ -123,6 +123,7 @@ const addVoteForElection = asyncHandler(async (req, res) => {
 
         if (!result) {
             // Candidate-party combination not found, create a new result entry with initial vote count
+            console.log("Creating new result entry for partyId:", partyId, "and candidateId:", candidateId);
             result = {
                 party: partyId,
                 candidate: candidateId,
@@ -130,6 +131,7 @@ const addVoteForElection = asyncHandler(async (req, res) => {
                 latestIPFSHash: newHash,
             };
             election.results.push(result); // Add the new result entry to the election results array
+            console.log("New result entry added:", result);
         } else {
             // Candidate-party combination found, increment vote count and update the hash
             console.log("Prev Hash >>", result.latestIPFSHash);
@@ -152,6 +154,7 @@ const addVoteForElection = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 const getAllVotesByParty = asyncHandler(async (req, res) => {
