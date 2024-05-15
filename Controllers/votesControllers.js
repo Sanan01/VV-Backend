@@ -105,13 +105,13 @@ const getAllVotesByParty = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Party not found in election results' });
         }
 
-        const hashValue = partyResult.latestIPFSHash;
+        // const hashValue = partyResult.latestIPFSHash;
 
-        // Fetch data from IPFS using the hash value
-        const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + hashValue);
-        const ipfsData = ipfsResponse.data;
+        // // Fetch data from IPFS using the hash value
+        // const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + hashValue);
+        // const ipfsData = ipfsResponse.data;
 
-        return res.status(200).json({votes: ipfsData });
+        return res.status(200).json({votes: partyResult });
 
     } catch (error) {
         console.error(error);
@@ -136,13 +136,13 @@ const getAllVotesByCandidate = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Candidate not found in election results for the specified party' });
         }
 
-        const hashValue = candidateResult.latestIPFSHash;
+        // const hashValue = candidateResult.latestIPFSHash;
 
-        // Fetch data from IPFS using the hash value
-        const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + hashValue);
-        const ipfsData = ipfsResponse.data;
+        // // Fetch data from IPFS using the hash value
+        // const ipfsResponse = await axios.get('https://gateway.pinata.cloud/ipfs/' + hashValue);
+        // const ipfsData = ipfsResponse.data;
 
-        return res.status(200).json({votes: ipfsData});
+        return res.status(200).json({votes: candidateResult});
 
     } catch (error) {
         console.error(error);
@@ -188,4 +188,31 @@ const calculateVotesByParty = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { addVoteForElection, getAllVotesByParty, getAllVotesByCandidate , calculateVotesByParty };
+const getHashValueByPartyCandidate = asyncHandler(async (req, res) => {
+    console.log("Get Vote by Candidate Election Status API");
+    const { electionId, candidateId, partyId } = req.body;
+    
+    try {
+        const election = await Election.findOne({ _id: electionId });
+
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found' });
+        }
+
+        const candidateResult = election.results.find(result => result.candidate.toString() === candidateId && result.party.toString() === partyId);
+        
+        if (!candidateResult) {
+            return res.status(404).json({ message: 'Candidate not found in election results for the specified party' });
+        }
+
+        const hashValue = candidateResult.latestIPFSHash;
+        return res.status(200).json({hashValue: hashValue});
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+module.exports = { addVoteForElection, getAllVotesByParty, getAllVotesByCandidate , calculateVotesByParty , getHashValueByPartyCandidate };
