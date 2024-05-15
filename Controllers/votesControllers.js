@@ -207,7 +207,7 @@ const getHashValueByPartyCandidate = asyncHandler(async (req, res) => {
         }
 
         const hashValue = candidateResult.latestIPFSHash;
-        return res.status(200).json({hashValue: hashValue});
+        return res.status(200).json({hashValue: candidateResult.latestIPFSHash});
 
     } catch (error) {
         console.error(error);
