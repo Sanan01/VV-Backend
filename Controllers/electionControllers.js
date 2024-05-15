@@ -203,8 +203,8 @@ const toggleElectionStatus = asyncHandler(async (req, res) => {
 
 const addPartyToElection = asyncHandler(async (req, res) => {
     console.log("Add Party to Election API");
-    const { electionId, partyId, candidates } = req.body;
-    console.log(electionId, partyId, candidates);
+    const { electionId, partyId, candidates , votes, newHash } = req.body;
+    console.log(electionId, partyId, candidates, votes, newHash );
 
     try {
         // Find the election
@@ -237,7 +237,7 @@ const addPartyToElection = asyncHandler(async (req, res) => {
                     party: partyId,
                     candidate: candidateId,
                     votes: 0,
-                    latestIPFSHash: '' // Assuming you want to initialize it with an empty string or a default hash
+                    latestIPFSHash: newHash // Assuming you want to initialize it with an empty string or a default hash
                 });
             });
 
@@ -254,7 +254,7 @@ const addPartyToElection = asyncHandler(async (req, res) => {
                     party: partyId,
                     candidate: candidateId,
                     votes: 0,
-                    latestIPFSHash: '' // Assuming you want to initialize it with an empty string or a default hash
+                    latestIPFSHash: newHash // Assuming you want to initialize it with an empty string or a default hash
                 });
             });
         }
