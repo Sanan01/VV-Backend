@@ -192,25 +192,27 @@ const calculateVotesByParty = asyncHandler(async (req, res) => {
 const getHashValueByPartyCandidate = asyncHandler(async (req, res) => {
     console.log("Get Vote by Candidate Election Status API");
     const { electionId, candidateId, partyId } = req.body;
-    
+    console.log("Request body:", req.body);
+
     try {
         const election = await Election.findOne({ _id: electionId });
-
         if (!election) {
+            console.log(`Election not found for electionId: ${electionId}`);
             return res.status(404).json({ message: 'Election not found' });
         }
 
         const candidateResult = election.results.find(result => result.candidate.toString() === candidateId && result.party.toString() === partyId);
-        
         if (!candidateResult) {
+            console.log(`Candidate not found in election results for candidateId: ${candidateId}, partyId: ${partyId}`);
             return res.status(404).json({ message: 'Candidate not found in election results for the specified party' });
         }
 
         const hashValue = candidateResult.latestIPFSHash;
-        return res.status(200).json({hashValue: candidateResult.latestIPFSHash});
+        console.log(`Hash value found: ${hashValue}`);
+        return res.status(200).json({ hashValue: candidateResult.latestIPFSHash });
 
     } catch (error) {
-        console.error(error);
+        console.error(`Error fetching hash value for electionId: ${electionId}, candidateId: ${candidateId}, partyId: ${partyId}`, error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
