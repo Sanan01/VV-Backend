@@ -188,6 +188,7 @@ const calculateVotesByParty = asyncHandler(async (req, res) => {
     }
 });
 
+
 const getHashValueByPartyCandidate = asyncHandler(async (req, res) => {
     console.log("Get Vote by Candidate Election Status API");
     const { electionId, candidateId, partyId } = req.body;
@@ -213,6 +214,7 @@ const getHashValueByPartyCandidate = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 module.exports = { addVoteForElection, getAllVotesByParty, getAllVotesByCandidate , calculateVotesByParty , getHashValueByPartyCandidate };
